@@ -41,9 +41,10 @@ const questionsBank = [
 
 const answers = document.getElementById('answers');
 const question = document.getElementById('question');
+const cardBlock = document.getElementById('card-block');
 let currentQuestionIndex = 0;
 
-function checkAnswer(event) {
+const checkAnswer = (event) => {
   const userAnswer = event.target.innerHTML;
   const currentQuestion = questionsBank[currentQuestionIndex];
 
@@ -57,14 +58,16 @@ function checkAnswer(event) {
       }
     }
   }
-}
+};
 
-function render() {
+let render = function() {
   if (questionsBank.length === 0) {
     console.log('Try again later.');
   }
   if (currentQuestionIndex >= questionsBank.length) {
-    return console.log('Game is over!');
+    console.log('Game is over!');
+    cardBlock.classList.add('hidden');
+    return;
   }
 
   const currentQuestion = questionsBank[currentQuestionIndex];
@@ -82,12 +85,12 @@ function render() {
 
     answers.appendChild(div);
   }
-}
+};
 
 window.onload = render();
 
-function handleCorrectAnswer() {
+let handleCorrectAnswer = function() {
   console.log('true');
   currentQuestionIndex += 1;
   render();
-}
+};

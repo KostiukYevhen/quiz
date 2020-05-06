@@ -45,3 +45,7 @@ h2 {
   background-color: #6e9a78;
   transition: 0.15s;
 }
+
+.hidden {
+  display: none;
+}
