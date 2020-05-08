@@ -1,4 +1,15 @@
+#for js
 .cache
 .idea
 dist
 node_modules
+
+#for .net
+obj
+bin
+packages
+*.log
+*.user
+*.suo
+*.log*
+.vs
