@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "parcel src/*.html --open"
+    "watch": "parcel src/*.html --open",
+    "eslint": "eslint src"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,8 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-plugin-import": "^2.20.2",
     "parcel-bundler": "1.12.4"
+  },
+  "dependencies": {
+    "restart": "^2.0.0"
   }
 }

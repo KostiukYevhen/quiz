@@ -4,6 +4,11 @@ body {
   font-weight: 400;
 }
 
+ul, ol {
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
 h1, h2 {
   text-align: center;
 }
@@ -12,11 +17,32 @@ h2 {
   font-weight: 400;
 }
 
+#inform-text {
+  margin-top: 50px;
+}
+
+#start {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+#start-button {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 400;
+  font-size: 36px;
+  padding: 10px 50px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px 5px #6e9a78;
+}
+
 #card-block {
   margin: auto;
-  margin-top: 100px;
+  margin-top: 150px;
   width: 600px;
   border: 1px solid #000;
+  border-radius: 10px;
   box-shadow: 0 0 10px 5px #6e9a78;
 }
 
@@ -32,6 +58,7 @@ h2 {
   padding: 5px 10px;
   border: 1px solid #6e9a78;
   cursor: pointer;
+  border-radius: 10px;
 }
 
 .answer:hover {
@@ -47,5 +74,61 @@ h2 {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+.winner, .loser {
+  font-size: 36px;
+}
+
+#restart {
+  margin-top: 30px;
+}
+
+#restart-button {
+  display: flex;
+  margin: auto;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 400;
+  font-size: 20px;
+  padding: 6px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 10px 5px #6e9a78;
+}
+
+#name-block {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.username {
+  outline: none;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 400;
+  font-size: 20px;
+  border: none;
+  border-radius: 10px;
+  padding: 5px 10px;
+  box-shadow: 0 0 10px 5px #6e9a78;
+}
+
+#results {
+  margin: auto;
+  margin-top: 50px;
+  width: 400px;
+  font-size: 20px;
+  border-radius: 10px;
+  padding: 5px 5px 5px 10px;
+  box-shadow: 0 0 10px 5px #6e9a78;
+}
+
+#scores {
+  display: inline;
+}
+
+.scores-position {
+  float: right;
+  padding-right: 20px;
 }

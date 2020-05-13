@@ -8,14 +8,27 @@
   <title>Quiz</title>
 </head>
 <body>
-  <h1>Welcome to the Quiz App</h1>
-  <div id="card-block">
-    <h2 id="question"></h2>
-    <div id="answers">
-      
-    </div>
+  <h1 class="greeting">Welcome to the Quiz App</h1>
+  <h2 id="inform-text">Are you ready to start?</h2>
+  <div id="start">
+    <button id="start-button">Yes!</button>
+  </div>
+  
+  <div id="name-block" class="hidden">
+    <input type="text" class="username" placeholder="Please, type your name">
   </div>
 
-  <script src="js/main.js"></script>
+  <div id="card-block" class="hidden">
+    <h2 id="question"></h2>
+    <div id="answers"></div>
+  </div>
+
+  <div id="results" class="hidden"></div>
+  
+  <div id="restart" class="hidden">
+    <button id="restart-button">Restart</button>
+  </div>
+
+  <script src="js/index.js"></script>
 </body>
 </html>
