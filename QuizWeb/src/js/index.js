@@ -1,12 +1,32 @@
-const xhr = new XMLHttpRequest();
-let response;
-xhr.open('GET', 'https://localhost:5001/questions/');
-xhr.responseType = 'json';
-xhr.onload = () => {
-  response = xhr.response;
-  questionsBank = response;
+const getRequest = (url, onload) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', url);
+  xhr.responseType = 'json';
+  xhr.onload = () => onload(xhr.response);
+  xhr.send();
 };
-xhr.send();
+
+const getLeaderboard = () => {
+  const url = 'https://localhost:5001/leaderboard';
+  const onload = (response) => {
+    leaderBoard = response;
+    resultsBlock.classList.remove('hidden');
+    nameBlock.classList.add('hidden');
+    informText.classList.add('hidden');
+    saveButton.classList.add('hidden');
+    leaderBoardRender();
+  };
+
+  getRequest(url, onload);
+};
+
+const getQuestions = () => {
+  const url = 'https://localhost:5001/questions/';
+  const onload = (response) => (questionsBank = response);
+  getRequest(url, onload);
+};
+
+getQuestions();
 
 let questionsBank;
 
@@ -120,30 +140,12 @@ userNameInput.addEventListener('keydown', (event) => {
   }
 });
 
-const getRequest = () => {
-  const xhr = new XMLHttpRequest();
-  let response;
-  xhr.open('GET', 'https://localhost:5001/leaderboard/');
-  xhr.responseType = 'json';
-  xhr.onload = () => {
-    response = xhr.response;
-    leaderBoard = response;
-    resultsBlock.classList.remove('hidden');
-    nameBlock.classList.add('hidden');
-    informText.classList.add('hidden');
-    saveButton.classList.add('hidden');
-    leaderBoardRender();
-  };
-  xhr.send();
-};
-
 saveButton.addEventListener('click', (event) => {
   const userName = getUserName();
   if (!getUserName()) {
     alert('Type your name!');
     setFocus();
   } else {
-    // leaderBoard.push({'name': getUserName(), 'score': result});
     const xhr = new XMLHttpRequest();
     const json = JSON.stringify({'name': getUserName(), 'score': result});
     xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
@@ -156,7 +158,7 @@ saveButton.addEventListener('click', (event) => {
       if (xhr.status != 200) {
         console.log(xhr.status + ': ' + xhr.statusText);
       } else {
-        getRequest();
+        getLeaderboard();
       }
     }
   }
