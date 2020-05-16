@@ -1,57 +1,14 @@
-// const xhr = new XMLHttpRequest();
-// xhr.open('GET', 'https://localhost:5001/questions/');
-// xhr.responseType = 'text';
-// xhr.onload = () => {
-//   if (xhr.status != 200) {
-//     console.log(`Ошибка ${xhr.status}: ${xhr.statusText}`);
-//   } else {
-//     console.log(`Готово, получили ${xhr.response.length} байт`);
-//   }
-// };
-// xhr.send();
+const xhr = new XMLHttpRequest();
+let response;
+xhr.open('GET', 'https://localhost:5001/questions/');
+xhr.responseType = 'json';
+xhr.onload = () => {
+  response = xhr.response;
+  questionsBank = response;
+};
+xhr.send();
 
-// const resp = new Response();
-
-const questionsBank = [
-  {
-    question: 'What color?',
-    options: [
-      {
-        text: 'Red',
-        isCorrect: false,
-      },
-      {
-        text: 'Green',
-        isCorrect: false,
-      },
-      {
-        text: 'Blue',
-        isCorrect: true,
-      },
-    ],
-  },
-  {
-    question: 'What ...?',
-    options: [
-      {
-        text: '111',
-        isCorrect: false,
-      },
-      {
-        text: '222',
-        isCorrect: true,
-      },
-      {
-        text: '333',
-        isCorrect: false,
-      },
-      {
-        text: '444',
-        isCorrect: false,
-      },
-    ],
-  },
-];
+let questionsBank;
 
 const greeting = document.getElementsByClassName('greeting')[0];
 const informText = document.getElementById('inform-text');
@@ -59,6 +16,7 @@ const start = document.getElementById('start');
 const startButton = document.getElementById('start-button');
 const restartBlock = document.getElementById('restart');
 const restartButton = document.getElementById('restart-button');
+const saveButton = document.getElementById('save-button');
 const answers = document.getElementById('answers');
 const question = document.getElementById('question');
 const cardBlock = document.getElementById('card-block');
@@ -70,24 +28,16 @@ let result = 0;
 let currentQuestionIndex = 0;
 const resultsBlock = document.getElementById('results');
 const ol = document.createElement('ol');
+ol.classList.add('hidden');
+const leaderBoard = [];
 
 const getUserName = () => {
   const userName = userNameInput.value;
   return userName;
 };
 
-const showResults = () => {
-  cardBlock.classList.add('hidden');
-  const nameBlock = document.getElementById('name-block');
-  restartBlock.classList.remove('hidden');
-  informText.innerHTML = result === 1 ? `You have earned ${result} point!` : `You have earned  ${result} points!`;
-  informText.classList.remove('hidden');
-  currentQuestionIndex = 0;
-  restartButton.addEventListener('click', (event) => {
-    restartBlock.classList.add('hidden');
-    render();
-  });
-
+const setFocus = () => {
+  userNameInput.focus();
 };
 
 const checkAnswer = (event) => {
@@ -100,7 +50,8 @@ const checkAnswer = (event) => {
       if (currentOption.isCorrect) {
         result += 1;
       }
-      handleCorrectAnswer();
+      currentQuestionIndex += 1;
+      render();
     }
   }
 };
@@ -112,11 +63,13 @@ const render = () => {
   if (currentQuestionIndex >= questionsBank.length) {
     cardBlock.classList.add('hidden');
     nameBlock.classList.remove('hidden');
-    const olList = resultsBlock.appendChild(ol);
     currentQuestionIndex = 0;
     restartBlock.classList.remove('hidden');
     informText.innerHTML = result === 1 ? `You have earned ${result} point!` : `You have earned  ${result} points!`;
     informText.classList.remove('hidden');
+    saveButton.classList.remove('hidden');
+    setFocus();
+
     restartButton.addEventListener('click', (event) => {
       restartBlock.classList.add('hidden');
       cardBlock.classList.remove('hidden');
@@ -125,6 +78,7 @@ const render = () => {
       resultsBlock.classList.add('hidden');
       result = 0;
       informText.classList.add('hidden');
+      resultsBlock.innerHTML = '';
       render();
     });
     
@@ -137,15 +91,31 @@ const render = () => {
           resultsBlock.classList.remove('hidden');
           nameBlock.classList.add('hidden');
           informText.classList.add('hidden');
-          olList.innerHTML += `<li>${userName} <span class="scores-position">${result}</span></li>`;
+          saveButton.classList.add('hidden');
         }
+      }
+    });
+
+    saveButton.addEventListener('click', (event) => {
+      const userName = getUserName();
+      if (!getUserName()) {
+        alert('Type your name!');
+        setFocus();
+      } else {
+        leaderBoard.push({'username': getUserName(), 'score': result});
+        resultsBlock.classList.remove('hidden');
+        nameBlock.classList.add('hidden');
+        informText.classList.add('hidden');
+        saveButton.classList.add('hidden');
+        leaderBoardRender();
+        console.log(leaderBoard);
       }
     });
     return;
   }
 
   const currentQuestion = questionsBank[currentQuestionIndex];
-  const currentQuestionText = currentQuestion.question;
+  const currentQuestionText = currentQuestion.questionText;
   question.innerHTML = currentQuestionText;
   answers.innerHTML = '';
 
@@ -167,8 +137,14 @@ startButton.addEventListener('click', (event) => {
   render();
 });
 
-let handleCorrectAnswer = () => {
-  currentQuestionIndex += 1;
-  console.log(result);
-  render();
+const leaderBoardRender = () => {
+  for (let i = 0; i < leaderBoard.length; i += 1) {
+    const currentUsername = leaderBoard[i].username;
+    const currentScore = leaderBoard[i].score;
+    const li = document.createElement('li');
+    li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
+    ol.appendChild(li);
+  }
+  resultsBlock.appendChild(ol);
+  ol.classList.remove('hidden');
 };

@@ -31,7 +31,7 @@ h2 {
   font-family: 'Baloo 2', cursive;
   font-weight: 400;
   font-size: 36px;
-  padding: 10px 50px;
+  padding: 5px 30px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 0 10px 5px #6e9a78;
@@ -61,7 +61,7 @@ h2 {
   border-radius: 10px;
 }
 
-.answer:hover {
+.answer:hover, #restart-button:hover, #save-button:hover {
   color: white;
   background-color: #6e9a78;
   transition: 0.25s;
@@ -82,19 +82,29 @@ h2 {
 }
 
 #restart {
-  margin-top: 30px;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 
-#restart-button {
-  display: flex;
-  margin: auto;
+#restart-button, #save-button {
+  width: 100px;
   font-family: 'Baloo 2', cursive;
   font-weight: 400;
   font-size: 20px;
   padding: 6px 20px;
+  border: none;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 0 10px 5px #6e9a78;
+}
+
+#restart-button {
+  margin-right: 15px;
+}
+
+#save-button {
+  margin-left: 16px;
 }
 
 #name-block {
