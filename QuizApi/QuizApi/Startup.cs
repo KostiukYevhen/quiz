@@ -23,6 +23,8 @@ namespace QuizApi
 				options.AddDefaultPolicy(builder =>
 				{
 					builder.AllowAnyOrigin();
+					builder.AllowAnyHeader();
+					builder.AllowAnyMethod();
 				});
 			});
 
