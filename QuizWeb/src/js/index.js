@@ -27,8 +27,6 @@ const resultText = document.getElementById('result-text');
 let result = 0;
 let currentQuestionIndex = 0;
 const resultsBlock = document.getElementById('results');
-const ol = document.createElement('ol');
-ol.classList.add('hidden');
 const leaderBoard = [];
 
 const getUserName = () => {
@@ -70,47 +68,6 @@ const render = () => {
     saveButton.classList.remove('hidden');
     setFocus();
 
-    restartButton.addEventListener('click', (event) => {
-      restartBlock.classList.add('hidden');
-      cardBlock.classList.remove('hidden');
-      nameBlock.classList.add('hidden');
-      userNameInput.value = '';
-      resultsBlock.classList.add('hidden');
-      result = 0;
-      informText.classList.add('hidden');
-      resultsBlock.innerHTML = '';
-      render();
-    });
-    
-    userNameInput.addEventListener('keydown', (event) => {
-      if (event.code === 'Enter') {
-        const userName = getUserName();
-        if (!getUserName()) {
-          alert('Type your name!');
-        } else {
-          resultsBlock.classList.remove('hidden');
-          nameBlock.classList.add('hidden');
-          informText.classList.add('hidden');
-          saveButton.classList.add('hidden');
-        }
-      }
-    });
-
-    saveButton.addEventListener('click', (event) => {
-      const userName = getUserName();
-      if (!getUserName()) {
-        alert('Type your name!');
-        setFocus();
-      } else {
-        leaderBoard.push({'username': getUserName(), 'score': result});
-        resultsBlock.classList.remove('hidden');
-        nameBlock.classList.add('hidden');
-        informText.classList.add('hidden');
-        saveButton.classList.add('hidden');
-        leaderBoardRender();
-        console.log(leaderBoard);
-      }
-    });
     return;
   }
 
@@ -137,9 +94,59 @@ startButton.addEventListener('click', (event) => {
   render();
 });
 
+restartButton.addEventListener('click', (event) => {
+  restartBlock.classList.add('hidden');
+  cardBlock.classList.remove('hidden');
+  nameBlock.classList.add('hidden');
+  userNameInput.value = '';
+  resultsBlock.classList.add('hidden');
+  resultsBlock.innerHTML = '';
+  result = 0;
+  informText.classList.add('hidden');
+  render();
+});
+
+userNameInput.addEventListener('keydown', (event) => {
+  if (event.code === 'Enter') {
+    const userName = getUserName();
+    if (!getUserName()) {
+      alert('Type your name!');
+    } else {
+      resultsBlock.classList.remove('hidden');
+      nameBlock.classList.add('hidden');
+      informText.classList.add('hidden');
+      saveButton.classList.add('hidden');
+    }
+  }
+});
+
+saveButton.addEventListener('click', (event) => {
+  const userName = getUserName();
+  if (!getUserName()) {
+    alert('Type your name!');
+    setFocus();
+  } else {
+    leaderBoard.push({'name': getUserName(), 'score': result});
+    const xhr = new XMLHttpRequest();
+    const body = {'name': getUserName(), 'score': result};
+    xhr.open('POST', 'https://localhost:5001/leaderboard/');
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+    xhr.send(body);
+
+    resultsBlock.classList.remove('hidden');
+    nameBlock.classList.add('hidden');
+    informText.classList.add('hidden');
+    saveButton.classList.add('hidden');
+    leaderBoardRender();
+  }
+});
+
 const leaderBoardRender = () => {
+  const ol = document.createElement('ol');
+  ol.classList.add('hidden');
+  console.log(ol);
   for (let i = 0; i < leaderBoard.length; i += 1) {
-    const currentUsername = leaderBoard[i].username;
+    const currentUsername = leaderBoard[i].name;
     const currentScore = leaderBoard[i].score;
     const li = document.createElement('li');
     li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
