@@ -27,7 +27,7 @@ const resultText = document.getElementById('result-text');
 let result = 0;
 let currentQuestionIndex = 0;
 const resultsBlock = document.getElementById('results');
-const leaderBoard = [];
+let leaderBoard;
 
 const getUserName = () => {
   const userName = userNameInput.value;
@@ -120,24 +120,45 @@ userNameInput.addEventListener('keydown', (event) => {
   }
 });
 
+const getRequest = () => {
+  const xhr = new XMLHttpRequest();
+  let response;
+  xhr.open('GET', 'https://localhost:5001/leaderboard/');
+  xhr.responseType = 'json';
+  xhr.onload = () => {
+    response = xhr.response;
+    leaderBoard = response;
+    resultsBlock.classList.remove('hidden');
+    nameBlock.classList.add('hidden');
+    informText.classList.add('hidden');
+    saveButton.classList.add('hidden');
+    leaderBoardRender();
+  };
+  xhr.send();
+};
+
 saveButton.addEventListener('click', (event) => {
   const userName = getUserName();
   if (!getUserName()) {
     alert('Type your name!');
     setFocus();
   } else {
-    leaderBoard.push({'name': getUserName(), 'score': result});
+    // leaderBoard.push({'name': getUserName(), 'score': result});
     const xhr = new XMLHttpRequest();
     const json = JSON.stringify({'name': getUserName(), 'score': result});
     xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
     xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
     xhr.send(json);
-
-    resultsBlock.classList.remove('hidden');
-    nameBlock.classList.add('hidden');
-    informText.classList.add('hidden');
-    saveButton.classList.add('hidden');
-    leaderBoardRender();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState != 4) return;
+      console.log('Done!');
+    
+      if (xhr.status != 200) {
+        console.log(xhr.status + ': ' + xhr.statusText);
+      } else {
+        getRequest();
+      }
+    }
   }
 });
 
@@ -155,3 +176,4 @@ const leaderBoardRender = () => {
   resultsBlock.appendChild(ol);
   ol.classList.remove('hidden');
 };
+
