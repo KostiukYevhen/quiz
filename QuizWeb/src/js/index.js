@@ -128,10 +128,10 @@ saveButton.addEventListener('click', (event) => {
   } else {
     leaderBoard.push({'name': getUserName(), 'score': result});
     const xhr = new XMLHttpRequest();
-    const body = {'name': getUserName(), 'score': result};
-    xhr.open('POST', 'https://localhost:5001/leaderboard/');
-    xhr.setRequestHeader('Content-Type', 'text/plain');
-    xhr.send(body);
+    const json = JSON.stringify({'name': getUserName(), 'score': result});
+    xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+    xhr.send(json);
 
     resultsBlock.classList.remove('hidden');
     nameBlock.classList.add('hidden');
