@@ -6,20 +6,22 @@ const getRequest = (url, onload) => {
   xhr.send();
 };
 
+const hideElements = (arr) => (arr.forEach((item, i, arr) => (arr[i].classList.add('hidden'))));
+const showElements = (arr) => (arr.forEach((item, i, arr) => (arr[i].classList.remove('hidden'))));
+
 const getLeaderboard = () => {
   const url = 'https://localhost:5001/leaderboard';
   const onload = (response) => {
     leaderBoard = response;
-    resultsBlock.classList.remove('hidden');
-    nameBlock.classList.add('hidden');
-    informText.classList.add('hidden');
-    saveButton.classList.add('hidden');
+    showElements([resultsBlock]);
+    hideElements([nameBlock, informText, saveButton]);
     leaderBoardRender();
   };
 
   getRequest(url, onload);
 };
 
+let questionsBank;
 const getQuestions = () => {
   const url = 'https://localhost:5001/questions/';
   const onload = (response) => (questionsBank = response);
@@ -28,17 +30,9 @@ const getQuestions = () => {
 
 getQuestions();
 
-let questionsBank;
-
-const greeting = document.getElementsByClassName('greeting')[0];
 const informText = document.getElementById('inform-text');
-const start = document.getElementById('start');
-const startButton = document.getElementById('start-button');
 const restartBlock = document.getElementById('restart');
-const restartButton = document.getElementById('restart-button');
 const saveButton = document.getElementById('save-button');
-const answers = document.getElementById('answers');
-const question = document.getElementById('question');
 const cardBlock = document.getElementById('card-block');
 const userNameInput = document.getElementsByClassName('username')[0];
 const nameBlock = document.getElementById('name-block');
@@ -48,9 +42,14 @@ let result = 0;
 let currentQuestionIndex = 0;
 const resultsBlock = document.getElementById('results');
 let leaderBoard;
+let userName = '';
+
+const sortLeaderBoard = (arr) => {
+  return arr.sort((a, b) => a.score > b.score ? -1 : 1);
+}
 
 const getUserName = () => {
-  const userName = userNameInput.value;
+  userName = userNameInput.value;
   return userName;
 };
 
@@ -79,18 +78,17 @@ const render = () => {
     console.log('Try again later.');
   }
   if (currentQuestionIndex >= questionsBank.length) {
-    cardBlock.classList.add('hidden');
-    nameBlock.classList.remove('hidden');
+    hideElements([cardBlock]);
+    showElements([nameBlock, restartBlock, informText, saveButton]);
     currentQuestionIndex = 0;
-    restartBlock.classList.remove('hidden');
     informText.innerHTML = result === 1 ? `You have earned ${result} point!` : `You have earned  ${result} points!`;
-    informText.classList.remove('hidden');
-    saveButton.classList.remove('hidden');
     setFocus();
 
     return;
   }
 
+  const question = document.getElementById('question');
+  const answers = document.getElementById('answers');
   const currentQuestion = questionsBank[currentQuestionIndex];
   const currentQuestionText = currentQuestion.questionText;
   question.innerHTML = currentQuestionText;
@@ -106,42 +104,52 @@ const render = () => {
   }
 };
 
-startButton.addEventListener('click', (event) => {
-  informText.classList.add('hidden');
-  cardBlock.classList.remove('hidden');
-  start.className = 'hidden';
-  greeting.classList.add('hidden');
+const greeting = document.getElementsByClassName('greeting')[0];
+const start = document.getElementById('start');
+const startButton = document.getElementById('start-button');
+
+startButton.addEventListener('click', () => {
+  hideElements([informText, start, greeting]);
+  showElements([cardBlock]);
   render();
 });
 
-restartButton.addEventListener('click', (event) => {
-  restartBlock.classList.add('hidden');
-  cardBlock.classList.remove('hidden');
-  nameBlock.classList.add('hidden');
+const restartButton = document.getElementById('restart-button');
+restartButton.addEventListener('click', () => {
+  showElements([cardBlock]);
+  hideElements([restartBlock, nameBlock, resultsBlock, informText]);
   userNameInput.value = '';
-  resultsBlock.classList.add('hidden');
   resultsBlock.innerHTML = '';
   result = 0;
-  informText.classList.add('hidden');
   render();
 });
 
 userNameInput.addEventListener('keydown', (event) => {
   if (event.code === 'Enter') {
-    const userName = getUserName();
     if (!getUserName()) {
       alert('Type your name!');
+      setFocus();
     } else {
-      resultsBlock.classList.remove('hidden');
-      nameBlock.classList.add('hidden');
-      informText.classList.add('hidden');
-      saveButton.classList.add('hidden');
+      const xhr = new XMLHttpRequest();
+      const json = JSON.stringify({'name': getUserName(), 'score': result});
+      xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
+      xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+      xhr.send(json);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState != 4) return;
+        console.log('Done!');
+      
+        if (xhr.status != 200) {
+          console.log(xhr.status + ': ' + xhr.statusText);
+        } else {
+          getLeaderboard();
+        }
+      }
     }
   }
 });
 
-saveButton.addEventListener('click', (event) => {
-  const userName = getUserName();
+saveButton.addEventListener('click', () => {
   if (!getUserName()) {
     alert('Type your name!');
     setFocus();
@@ -165,17 +173,20 @@ saveButton.addEventListener('click', (event) => {
 });
 
 const leaderBoardRender = () => {
+  const sortedLeaderBoard = sortLeaderBoard(leaderBoard);
   const ol = document.createElement('ol');
-  ol.classList.add('hidden');
-  console.log(ol);
-  for (let i = 0; i < leaderBoard.length; i += 1) {
-    const currentUsername = leaderBoard[i].name;
-    const currentScore = leaderBoard[i].score;
+  for (let i = 0; i < sortedLeaderBoard.length; i += 1) {
+    const currentUsername = sortedLeaderBoard[i].name;
+    const currentScore = sortedLeaderBoard[i].score;
     const li = document.createElement('li');
-    li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
+    if (currentUsername === userName) {
+      li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
+      li.classList.add('current-user');
+    } else {
+      li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
+    }
     ol.appendChild(li);
   }
   resultsBlock.appendChild(ol);
-  ol.classList.remove('hidden');
 };
 
