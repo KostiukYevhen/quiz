@@ -25,6 +25,8 @@
     "parcel-bundler": "1.12.4"
   },
   "dependencies": {
+    "requests": "^0.3.0",
+    "requests.js": "^1.0.0",
     "restart": "^2.0.0"
   }
 }

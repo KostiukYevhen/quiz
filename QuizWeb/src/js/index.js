@@ -1,10 +1,4 @@
-const getRequest = (url, onload) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', url);
-  xhr.responseType = 'json';
-  xhr.onload = () => onload(xhr.response);
-  xhr.send();
-};
+import { getRequest, postRequest } from './requests.js';
 
 const hideElements = (arr) => (arr.forEach((item) => (item.classList.add('hidden'))));
 const showElements = (arr) => (arr.forEach((item) => (item.classList.remove('hidden'))));
@@ -116,26 +110,10 @@ restartButton.addEventListener('click', () => {
   render();
 });
 
-const postRequest = (url, body, onSuccess) => {
-  const xhr = new XMLHttpRequest();
-  xhr.open('POST', url, true);
-  xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-  xhr.send(body);
-  xhr.onreadystatechange = () => {
-    if (xhr.readyState !== 4) return;
-    console.log('Done!');
-
-    if (xhr.status !== 200) {
-      console.log(`${xhr.status} : ${xhr.statusText}`);
-    } else {
-      onSuccess();
-    }
-  };
-};
-
 const saveUser = (name, score) => {
+  const url = 'https://localhost:5001/leaderboard/';
   const json = JSON.stringify({ name, score });
-  postRequest('https://localhost:5001/leaderboard/', json, getLeaderboard);
+  postRequest(url, json, getLeaderboard);
 };
 
 usernameInput.addEventListener('keydown', (event) => {
