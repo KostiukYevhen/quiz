@@ -6,16 +6,17 @@ const getRequest = (url, onload) => {
   xhr.send();
 };
 
-const hideElements = (arr) => (arr.forEach((item, i, arr) => (arr[i].classList.add('hidden'))));
-const showElements = (arr) => (arr.forEach((item, i, arr) => (arr[i].classList.remove('hidden'))));
+const hideElements = (arr) => (arr.forEach((item) => (item.classList.add('hidden'))));
+const showElements = (arr) => (arr.forEach((item) => (item.classList.remove('hidden'))));
 
+let leaderboard;
 const getLeaderboard = () => {
   const url = 'https://localhost:5001/leaderboard';
   const onload = (response) => {
-    leaderBoard = response;
+    leaderboard = response;
     showElements([resultsBlock]);
     hideElements([nameBlock, informText, saveButton]);
-    leaderBoardRender();
+    leaderboardRender();
   };
 
   getRequest(url, onload);
@@ -24,39 +25,30 @@ const getLeaderboard = () => {
 let questionsBank;
 const getQuestions = () => {
   const url = 'https://localhost:5001/questions/';
-  const onload = (response) => (questionsBank = response);
+  const onload = (response) => {
+    questionsBank = response;
+  };
   getRequest(url, onload);
 };
 
 getQuestions();
 
 const informText = document.getElementById('inform-text');
-const restartBlock = document.getElementById('restart');
+const restartBlock = document.getElementById('restart-block');
 const saveButton = document.getElementById('save-button');
 const cardBlock = document.getElementById('card-block');
-const userNameInput = document.getElementsByClassName('username')[0];
-const nameBlock = document.getElementById('name-block');
-const scores = document.getElementById('scores');
-const resultText = document.getElementById('result-text');
-let result = 0;
+const usernameInput = document.getElementsByClassName('username')[0];
+let score = 0;
+let username = '';
+
+const sortLeaderboard = (arr) => (arr.sort((a, b) => (a.score > b.score ? -1 : 1)));
+
+const getUsername = () => {
+  username = usernameInput.value;
+  return username;
+};
+
 let currentQuestionIndex = 0;
-const resultsBlock = document.getElementById('results');
-let leaderBoard;
-let userName = '';
-
-const sortLeaderBoard = (arr) => {
-  return arr.sort((a, b) => a.score > b.score ? -1 : 1);
-}
-
-const getUserName = () => {
-  userName = userNameInput.value;
-  return userName;
-};
-
-const setFocus = () => {
-  userNameInput.focus();
-};
-
 const checkAnswer = (event) => {
   const userAnswer = event.target.innerHTML;
   const currentQuestion = questionsBank[currentQuestionIndex];
@@ -64,9 +56,7 @@ const checkAnswer = (event) => {
   for (let i = 0; i < currentQuestion.options.length; i += 1) {
     const currentOption = currentQuestion.options[i];
     if (currentOption.text === userAnswer) {
-      if (currentOption.isCorrect) {
-        result += 1;
-      }
+      score += currentOption.isCorrect ? 1 : 0;
       currentQuestionIndex += 1;
       render();
     }
@@ -81,9 +71,8 @@ const render = () => {
     hideElements([cardBlock]);
     showElements([nameBlock, restartBlock, informText, saveButton]);
     currentQuestionIndex = 0;
-    informText.innerHTML = result === 1 ? `You have earned ${result} point!` : `You have earned  ${result} points!`;
-    setFocus();
-
+    informText.innerHTML = score === 1 ? `You have earned ${score} point!` : `You have earned ${score} points!`;
+    usernameInput.focus();
     return;
   }
 
@@ -105,81 +94,80 @@ const render = () => {
 };
 
 const greeting = document.getElementsByClassName('greeting')[0];
-const start = document.getElementById('start');
+const startBlock = document.getElementById('start-block');
 const startButton = document.getElementById('start-button');
 
 startButton.addEventListener('click', () => {
-  hideElements([informText, start, greeting]);
+  hideElements([informText, startBlock, greeting]);
   showElements([cardBlock]);
   render();
 });
 
 const restartButton = document.getElementById('restart-button');
+const nameBlock = document.getElementById('name-block');
+const resultsBlock = document.getElementById('results-block');
+
 restartButton.addEventListener('click', () => {
   showElements([cardBlock]);
   hideElements([restartBlock, nameBlock, resultsBlock, informText]);
-  userNameInput.value = '';
+  usernameInput.value = '';
   resultsBlock.innerHTML = '';
-  result = 0;
+  score = 0;
   render();
 });
 
-userNameInput.addEventListener('keydown', (event) => {
-  if (event.code === 'Enter') {
-    if (!getUserName()) {
-      alert('Type your name!');
-      setFocus();
+const postRequest = (url, body, onSuccess) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+  xhr.send(body);
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState !== 4) return;
+    console.log('Done!');
+
+    if (xhr.status !== 200) {
+      console.log(`${xhr.status} : ${xhr.statusText}`);
     } else {
-      const xhr = new XMLHttpRequest();
-      const json = JSON.stringify({'name': getUserName(), 'score': result});
-      xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
-      xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-      xhr.send(json);
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState != 4) return;
-        console.log('Done!');
-      
-        if (xhr.status != 200) {
-          console.log(xhr.status + ': ' + xhr.statusText);
-        } else {
-          getLeaderboard();
-        }
-      }
+      onSuccess();
+    }
+  };
+};
+
+const saveUser = (name, score) => {
+  const json = JSON.stringify({ name, score });
+  postRequest('https://localhost:5001/leaderboard/', json, getLeaderboard);
+};
+
+usernameInput.addEventListener('keydown', (event) => {
+  if (event.code === 'Enter') {
+    const username = getUsername();
+    if (!username) {
+      alert('Type your name!');
+      usernameInput.focus();
+    } else {
+      saveUser(username, score);
     }
   }
 });
 
 saveButton.addEventListener('click', () => {
-  if (!getUserName()) {
+  const username = getUsername();
+  if (!username) {
     alert('Type your name!');
-    setFocus();
+    usernameInput.focus();
   } else {
-    const xhr = new XMLHttpRequest();
-    const json = JSON.stringify({'name': getUserName(), 'score': result});
-    xhr.open('POST', 'https://localhost:5001/leaderboard/', true);
-    xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
-    xhr.send(json);
-    xhr.onreadystatechange = function() {
-      if (xhr.readyState != 4) return;
-      console.log('Done!');
-    
-      if (xhr.status != 200) {
-        console.log(xhr.status + ': ' + xhr.statusText);
-      } else {
-        getLeaderboard();
-      }
-    }
+    saveUser(username, score);
   }
 });
 
-const leaderBoardRender = () => {
-  const sortedLeaderBoard = sortLeaderBoard(leaderBoard);
+const leaderboardRender = () => {
+  const sortedLeaderboard = sortLeaderboard(leaderboard);
   const ol = document.createElement('ol');
-  for (let i = 0; i < sortedLeaderBoard.length; i += 1) {
-    const currentUsername = sortedLeaderBoard[i].name;
-    const currentScore = sortedLeaderBoard[i].score;
+  for (let i = 0; i < sortedLeaderboard.length; i += 1) {
+    const currentUsername = sortedLeaderboard[i].name;
+    const currentScore = sortedLeaderboard[i].score;
     const li = document.createElement('li');
-    if (currentUsername === userName) {
+    if (currentUsername === username) {
       li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
       li.classList.add('current-user');
     } else {
@@ -189,4 +177,3 @@ const leaderBoardRender = () => {
   }
   resultsBlock.appendChild(ol);
 };
-

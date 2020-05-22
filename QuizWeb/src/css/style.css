@@ -2,16 +2,12 @@ body {
   background-color: #eee;
   font-family: 'Baloo 2', cursive;
   font-weight: 400;
+  text-align: center;
 }
 
 ul, ol {
-  margin: 0;
-  margin-left: 10px;
+  margin: 0 0 0 10px;
   padding: 0 0 0 20px;
-}
-
-h1, h2 {
-  text-align: center;
 }
 
 h2 {
@@ -22,7 +18,7 @@ h2 {
   margin-top: 50px;
 }
 
-#start {
+#start-block {
   margin-top: 20px;
   display: flex;
   justify-content: center;
@@ -78,11 +74,7 @@ h2 {
   display: none !important;
 }
 
-.winner, .loser {
-  font-size: 36px;
-}
-
-#restart {
+#restart-block {
   margin-top: 20px;
   display: flex;
   justify-content: center;
@@ -125,7 +117,7 @@ h2 {
   box-shadow: 0 0 10px 5px #6e9a78;
 }
 
-#results {
+#results-block {
   margin: auto;
   margin-top: 50px;
   width: 400px;
@@ -133,10 +125,6 @@ h2 {
   border-radius: 10px;
   padding: 5px 5px 5px 10px;
   box-shadow: 0 0 10px 5px #6e9a78;
-}
-
-#scores {
-  display: inline;
 }
 
 .scores-position {
