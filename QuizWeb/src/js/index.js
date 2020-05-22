@@ -1,20 +1,5 @@
-import { getRequest, postRequest } from './requests.js';
-
-const hideElements = (arr) => (arr.forEach((item) => (item.classList.add('hidden'))));
-const showElements = (arr) => (arr.forEach((item) => (item.classList.remove('hidden'))));
-
-let leaderboard;
-const getLeaderboard = () => {
-  const url = 'https://localhost:5001/leaderboard';
-  const onload = (response) => {
-    leaderboard = response;
-    showElements([resultsBlock]);
-    hideElements([nameBlock, informText, saveButton]);
-    leaderboardRender();
-  };
-
-  getRequest(url, onload);
-};
+import { getRequest, postRequest } from './requests';
+import { hideElements, showElements } from './utils'
 
 let questionsBank;
 const getQuestions = () => {
@@ -34,8 +19,6 @@ const cardBlock = document.getElementById('card-block');
 const usernameInput = document.getElementsByClassName('username')[0];
 let score = 0;
 let username = '';
-
-const sortLeaderboard = (arr) => (arr.sort((a, b) => (a.score > b.score ? -1 : 1)));
 
 const getUsername = () => {
   username = usernameInput.value;
@@ -113,7 +96,11 @@ restartButton.addEventListener('click', () => {
 const saveUser = (name, score) => {
   const url = 'https://localhost:5001/leaderboard/';
   const json = JSON.stringify({ name, score });
-  postRequest(url, json, getLeaderboard);
+  const callUserIsSavedEvent = () => {
+    const userIsSavedEvent = new CustomEvent('userIsSaved', { bubbles: true, detail: { username }});
+    document.dispatchEvent(userIsSavedEvent);
+  };
+  postRequest(url, json, callUserIsSavedEvent);
 };
 
 usernameInput.addEventListener('keydown', (event) => {
@@ -137,21 +124,3 @@ saveButton.addEventListener('click', () => {
     saveUser(username, score);
   }
 });
-
-const leaderboardRender = () => {
-  const sortedLeaderboard = sortLeaderboard(leaderboard);
-  const ol = document.createElement('ol');
-  for (let i = 0; i < sortedLeaderboard.length; i += 1) {
-    const currentUsername = sortedLeaderboard[i].name;
-    const currentScore = sortedLeaderboard[i].score;
-    const li = document.createElement('li');
-    if (currentUsername === username) {
-      li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
-      li.classList.add('current-user');
-    } else {
-      li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
-    }
-    ol.appendChild(li);
-  }
-  resultsBlock.appendChild(ol);
-};
