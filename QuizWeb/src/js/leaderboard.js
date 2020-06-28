@@ -22,18 +22,19 @@ const getLeaderboard = (username) => {
 const sortLeaderboard = (arr) => (arr.sort((a, b) => (a.score > b.score ? -1 : 1)));
 
 document.addEventListener('userIsSaved', (event) => {
-  console.log(event.detail);
   getLeaderboard(event.detail.username);
 });
 
 const leaderboardRender = (username) => {
+  const lastId = leaderboard.length;
   const sortedLeaderboard = sortLeaderboard(leaderboard);
   const ol = document.createElement('ol');
   for (let i = 0; i < sortedLeaderboard.length; i += 1) {
     const currentUsername = sortedLeaderboard[i].name;
+    const currentId = Number(sortedLeaderboard[i].id);
     const currentScore = sortedLeaderboard[i].score;
     const li = document.createElement('li');
-    if (currentUsername === username) {
+    if (lastId === currentId) {
       li.innerHTML = `${currentUsername} <span class="scores-position">${currentScore}</span>`;
       li.classList.add('current-user');
     } else {
